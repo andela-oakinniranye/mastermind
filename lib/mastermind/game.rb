@@ -1,17 +1,18 @@
 module Mastermind
   class Game
-    ALLOWED_TRIALS = 12
+    include Default
     attr_reader :colors, :trial_count, :response, :character_count
-    @@color_array = %w{ R G B Y } #['R', 'G', 'B', 'Y']
+    @@color_array = %w{ R G B Y }
 
-    def initialize(response)
+    def initialize(response, character_count = 4)
       @response = response
+      @character_count = character_count
     end
 
-    def generate_colors(character_count = 4)
+    def generate_colors
       @character_count = character_count
       @colors = []
-      character_count.times{
+      @character_count.times{
         @colors << @@color_array.sample
       }
     end
@@ -20,7 +21,6 @@ module Mastermind
       current_guess = current_guess.upcase.split('')
       current_sprint = {match_position: [], almost_match: []}
       current_guess.each_with_index{ |value, index|
-        # require 'pry' ; binding.pry
         current_sprint[:match_position] << true if value == @colors[index]
         current_sprint[:almost_match] << true if @colors.include? value
       }
@@ -30,32 +30,52 @@ module Mastermind
 
     def play
       generate_colors
+      @response.start.message
+      @trial_count = 0
+      @time_started = Time.now.to_i
 
-      #call game_process #commented due to failing tests: need to learn more about method stubbing
+      game_process
+    end
+
+    def too_short?(input)
+      if input.length < @character_count
+        send_message(@response.shorter_input.message)
+        true
+      end
+    end
+
+    def too_long?(input)
+      if input.length > @character_count
+        send_message(@response.longer_input.message)
+        true
+      end
     end
 
     def game_process
-      generate_colors
-      @trial_count = 0
-      time_started = Time.now.to_i
-      loop{
-        input = get_input(@response.trial_count(@trial_count, @colors).message)
+      until response.status == :won
+        input = get_input(@response.trial_count(@trial_count).message)
         if actions.keys.include? input
           method(actions[input]).call
+
           send_message(@response.message)
-          break if actions[input] =~ /quit/
+          break if actions[input] =~ /quit|cheat/
         else
-          break if @trial_count >= ALLOWED_TRIALS
+          next if too_short?(input)
+          next if too_long?(input)
           @trial_count += 1
           analyzed = analyze_guess(input)
-          if check_correct?(analyzed)
-            won(time_started)
-            send_message(@response.message)
-            break
-          end
+          break if correct(analyzed)
           send_message(@response.analyzed_guess(analyzed[:match_position].length, analyzed[:almost_match].length).message)
         end
-      }
+      end
+    end
+
+    def correct(analyzed)
+      if check_correct?(analyzed)
+        won(@time_started)
+        send_message(@response.message)
+        true
+      end
     end
 
     def check_correct?(analysis)
@@ -67,9 +87,11 @@ module Mastermind
         'q' => 'quit_game',
         'quit' => 'quit_game',
         'i' => 'instructions',
-        'instructions' => 'instructions'
+        'instructions' => 'instructions',
+        'c' => 'cheat',
+        'cheat' => 'cheat'
       }
-      action_s = action_s.merge(conditional_actions) if @trial_count >= ALLOWED_TRIALS
+      # action_s = action_s.merge(conditional_actions)
 
       action_s
     end
@@ -101,14 +123,8 @@ module Mastermind
       @response.won(@trial_count, time)
     end
 
-    def send_message(message)
-      puts message
-    end
-
-    def get_input(message)
-      puts message
-      input = gets.chomp
-      input
+    def cheat
+      @response.cheat(@colors.join).message
     end
   end
 end

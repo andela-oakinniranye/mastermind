@@ -1,4 +1,5 @@
 require "mastermind/version"
+require "colorize"
 
 module Mastermind
   # Your code goes here...

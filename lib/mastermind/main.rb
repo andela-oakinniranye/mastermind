@@ -1,5 +1,6 @@
 module Mastermind
   class Main
+    include Default
     attr_reader :game
 
     def initialize
@@ -7,14 +8,20 @@ module Mastermind
     end
 
     def start
-      actions
+      action = get_input(@response.start.message)
+      if supported_actions.keys.include? action
+        @game = Game.new(@response)
+        @game.method(supported_actions[action]).call
+        send_message(@response.message) unless supported_actions[action] =~ /play/
+        start if supported_actions[action] =~ /instructions/
+      else
+        send_message @response.unsupported_game_action.message
+        start
+      end
     end
 
-private
-    def actions
-      puts @response.start.message
-
-      supported_actions = {
+    def supported_actions
+      {
         'p' => 'play',
         'play' => 'play',
         'q' => 'quit_game',
@@ -22,16 +29,7 @@ private
         'i' => 'instructions',
         'instructions' => 'instructions'
       }
-
-      action = gets.chomp.downcase
-      if supported_actions.keys.include? action
-        @game = Game.new(@response)
-        @game.method(supported_actions[action]).call
-        @game = nil if action =~ /q|quit/
-      else
-        puts @response.unsupported_game_action.message
-        actions
-      end
     end
+
   end
 end

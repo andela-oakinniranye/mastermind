@@ -19,11 +19,11 @@ module Mastermind
     end
 
     def cheat(color)
-      set_attr(message: "Hmm! You just cheated. The colors generated was: #{color}", status: :ended)
+      set_attr(message: "Hmm! You just cheated. The colors generated was: #{color}".colorize(:light_blue), status: :ended)
     end
 
     def won(tries, time={})
-      set_attr(message: "Congratulations!\nYou won the game in #{tries} trie(s) and #{time[:mins]}m#{time[:secs]}s", status: :won)
+      set_attr(message: "Congratulations!\nYou won the game in #{tries} tr[y|ies] and #{time[:mins]}m#{time[:secs]}s".colorize(:blue), status: :won)
     end
 
     def instructions
@@ -31,19 +31,19 @@ module Mastermind
     end
 
     def shorter_input
-      set_attr(message: "Your input is too short.", status: :shorter_input)
+      set_attr(message: "Your input is too short.".colorize(:red), status: :shorter_input)
     end
 
     def longer_input
-      set_attr(message: "Your input is too long.", status: :longer_input)
+      set_attr(message: "Your input is too long.".colorize(:red), status: :longer_input)
     end
 
     def start
-      set_attr(message: "Welcome to MASTERMIND!\nWould you like to (p)lay, read the (i)nstructions, or (q)uit?", status: :started)
+      set_attr(message: "Welcome to MASTERMIND!\nWould you like to (p)lay, read the (i)nstructions, or (q)uit?".colorize(:blue), status: :started)
     end
 
     def exit_game
-      set_attr(message: "Thank you for playing Mastermind!\nGoodbye!", status: :quitted)
+      set_attr(message: "Thank you for playing Mastermind!\nGoodbye!".colorize(:green), status: :quitted)
     end
 
     def unsupported_game_action(message: nil, status: nil)
@@ -54,23 +54,18 @@ module Mastermind
     end
 
     def wrong_guess
-      set_attr(message: "Your guess was wrong! Guess again: ", status: :wrong)
+      set_attr(message: "Your guess was wrong! Guess again: ".colorize(:red), status: :wrong)
     end
 
     def analyzed_guess(matched_position, included)
-      set_attr(message: "You had #{matched_position} position(s) exactly matched and #{included} close match(es)", status: :running)
+      set_attr(message: "You had #{matched_position} position(s) exactly matched and #{included} close match(es)".colorize(:light_blue), status: :running)
     end
 
-    def trial_count(trial_count, color = nil)
+    def trial_count(trial_count)
       if trial_count == 0
         instructions
-      elsif trial_count < Game::ALLOWED_TRIALS
-        set_attr(message: "You have tried #{trial_count} time(s). You have #{Game::ALLOWED_TRIALS - trial_count} trial(s) left.\nTry again: ", status: :running)
       else
-        set_attr(message: "You tried, but lost! ", status: :lost)
-        @message += "The color sequence generated was #{color.join}. " if color
-        @message +=  "Want to try again? "
-        self
+        set_attr(message: "You have tried #{trial_count} time(s).\nTry again: ".colorize(:red), status: :running)
       end
     end
 

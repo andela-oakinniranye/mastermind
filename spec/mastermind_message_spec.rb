@@ -20,13 +20,7 @@ describe Mastermind::Message do
   it 'has message for the number of trials' do
     mastermind_message.trial_count(5)
 
-    expect(mastermind_message.message).to eq "You have tried 5 time(s). You have 7 trial(s) left.\nTry again: "
-  end
-
-  it 'has message for exhausted limits' do
-    mastermind_message.trial_count(12)
-
-    expect(mastermind_message.message).to eq "You tried, but lost! Want to try again? "
+    expect(mastermind_message.message).to eq "You have tried 5 time(s).\nTry again: "
   end
 
   it 'can get instruction message' do

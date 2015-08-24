@@ -114,6 +114,15 @@ describe Mastermind::Game do
     expect(mastermind_game.response.message).to include("Congratulations!\nYou won the game")
   end
 
+  it 'can cheat while playing the game' do
+    mastermind_game.stub(:get_input){"c"}
+
+    mastermind_game.play
+
+    expect(mastermind_game.response.status).to be :cheated
+    expect(mastermind_game.response.message).to include "Hmm! You just cheated. The colors generated was: #{mastermind_game.colors.join}."
+  end
+
   it 'sends a response if sequence is longer' do
     mastermind_game.stub(:get_input){"RYBGY"}
 

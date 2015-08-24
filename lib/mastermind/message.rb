@@ -19,7 +19,7 @@ module Mastermind
     end
 
     def cheat(color)
-      set_attr(message: "Hmm! You just cheated. The colors generated was: #{color}", status: :ended)
+      set_attr(message: "Hmm! You just cheated. The colors generated was: #{color}.", status: :cheated)
     end
 
     def won(tries, time={})
@@ -69,7 +69,11 @@ module Mastermind
       end
     end
 
-    def winner_record(winner, time_taken)
+    def player
+      set_attr(message: "So you would like to play!\nStart by telling us your name: ", status: :player)
+    end
+
+    def winner(winner, time_taken)
       set_attr(message: "#{winner} completed mastermind in #{time_taken}", status: :unknown)
     end
   end

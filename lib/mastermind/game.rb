@@ -1,7 +1,8 @@
 module Mastermind
   class Game
     include Default
-    attr_reader :colors, :trial_count, :response, :character_count
+    attr_reader :colors, :trial_count, :response, :character_count, :player
+    ALLOWED_TRIALS = 12
     @@color_array = %w{ R G B Y }
 
     def initialize(response, character_count = 4)
@@ -28,6 +29,10 @@ module Mastermind
       current_sprint
     end
 
+    def get_player
+      @player = Player.new
+    end
+
     def play
       generate_colors
       @response.start.message
@@ -52,7 +57,7 @@ module Mastermind
     end
 
     def game_process
-      until @response.status == :won
+      until @trial_count == ALLOWED_TRIALS || @response.status == :won
         input = get_input(@response.trial_count(@trial_count).message)
         if actions.keys.include? input
           method(actions[input]).call
@@ -108,10 +113,10 @@ module Mastermind
     end
 
     def won(start_time)
-      time_diff = Time.now.to_i - start_time
+      @time_taken = Time.now.to_i - start_time
       time = {}
-      time[:mins] = time_diff/60
-      time[:secs] = time_diff%60
+      time[:mins] = @time_taken/60
+      time[:secs] = @time_taken%60
       @response.won(@trial_count, time)
     end
 

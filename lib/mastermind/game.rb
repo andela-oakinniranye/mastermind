@@ -57,7 +57,7 @@ module Mastermind
     end
 
     def game_process
-      until @trial_count == ALLOWED_TRIALS || @response.status == :won
+      until @trial_count > ALLOWED_TRIALS || @response.status == :won
         input = get_input(@response.trial_count(@trial_count).message)
         if actions.keys.include? input
           method(actions[input]).call
@@ -73,11 +73,16 @@ module Mastermind
       end
       play_again_or_quit
     end
+    #
+    # def guess_analysis
+    #   send_message()
+    #
+    # end
 
     def play_again_or_quit
       if @response.status == :won
         input = get_input(@response.message)
-        supported_actions = {'p' => 'play', 'play' => 'play', 'q' => 'quit_game', 'quit' => 'quit_game'}
+
         method(supported_actions[input]).call if supported_actions.keys.include? input
       end
     end
@@ -90,7 +95,7 @@ module Mastermind
     end
 
     def actions
-      {
+      action_s = {
         'q' => 'quit_game',
         'quit' => 'quit_game',
         'i' => 'instructions',
@@ -98,6 +103,11 @@ module Mastermind
         'c' => 'cheat',
         'cheat' => 'cheat'
       }
+
+      supported_actions = {'p' => 'play', 'play' => 'play', 'q' => 'quit_game', 'quit' => 'quit_game'}
+      action_s = action_s.merge(supported_actions) if @trial_count >= ALLOWED_TRIALS
+
+      action_s
     end
 
     def instructions

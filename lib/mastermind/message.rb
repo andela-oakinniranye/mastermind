@@ -64,8 +64,10 @@ module Mastermind
     def trial_count(trial_count)
       if trial_count == 0
         instructions
-      else
+      elsif(trial_count < Game::ALLOWED_TRIALS)
         set_attr(message: "You have tried #{trial_count} time(s).\nTry again: ", status: :running)
+      else
+        set_attr(message: "You tried, but lost.\nWant to try again? (p)lay to start again or (q)uit to exit ", status: :running)
       end
     end
 

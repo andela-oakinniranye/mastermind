@@ -2,12 +2,29 @@ require 'spec_helper'
 
 describe Mastermind::Main do
   let(:mastermind_main){Mastermind::Main.new}
+  let(:mastermind_message){Mastermind::Message.new}
 
-  it 'can start new game' do
-    # Mastermind::Main.stub(:gets).with('w')
+  before(:each) do
+    # mastermind_main.stub(:get_input){''}
+    mastermind_main.stub(:send_message){}
+  end
 
-    # mastermind_main.start.should_receive(:puts).with("Welcome to MASTERMIND!\nWould you like to (p)lay, read the (i)nstructions, or (q)uit?").and_return(nil)
-    # expect(mastermind_main.start).to receive("Welcome to MASTERMIND!\nWould you like to (p)lay, read the (i)nstructions, or (q)uit?")
+  it 'sets the response attribute' do
+    expect(mastermind_main.response).to be_a Mastermind::Message
+  end
+
+  it 'can quit main' do
+    mastermind_main.stub(:get_input){'q'}
+    # mastermind_main.game.stub(:get_input){mastermind_main.game.colors}
+    mastermind_main.start
+
+    expect(mastermind_main.response.message).to eq(mastermind_message.exit_game.message)
+  end
+
+  it 'can get the instructions' do
+    skip
+    mastermind_main.stub(:get_input){['i', 'w'].sample}
+    mastermind_main.start
   end
 
 end

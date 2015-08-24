@@ -52,38 +52,40 @@ module Mastermind
     end
 
     def game_process
-      until response.status == :won
+      until @response.status == :won
         input = get_input(@response.trial_count(@trial_count).message)
         if actions.keys.include? input
           method(actions[input]).call
-
-          send_message(@response.message)
           break if actions[input] =~ /quit|cheat/
         else
           next if too_short?(input)
           next if too_long?(input)
           @trial_count += 1
           analyzed = analyze_guess(input)
-          break if correct(analyzed)
+          break if check_correct?(analyzed)
           send_message(@response.analyzed_guess(analyzed[:match_position].length, analyzed[:almost_match].length).message)
         end
       end
+      play_again_or_quit
     end
 
-    def correct(analyzed)
-      if check_correct?(analyzed)
-        won(@time_started)
-        send_message(@response.message)
-        true
+    def play_again_or_quit
+      if @response.status == :won
+        input = get_input(@response.message)
+        supported_actions = {'p' => 'play', 'play' => 'play', 'q' => 'quit_game', 'quit' => 'quit_game'}
+        method(supported_actions[input]).call if supported_actions.keys.include? input
       end
     end
 
     def check_correct?(analysis)
-      analysis[:match_position].length == @character_count
+      if analysis[:match_position].length == @character_count
+        won(@time_started)
+        true
+      end
     end
 
     def actions
-      action_s = {
+      {
         'q' => 'quit_game',
         'quit' => 'quit_game',
         'i' => 'instructions',
@@ -91,28 +93,18 @@ module Mastermind
         'c' => 'cheat',
         'cheat' => 'cheat'
       }
-      # action_s = action_s.merge(conditional_actions)
-
-      action_s
-    end
-
-    def conditional_actions
-      {
-      'y' => 'game_process',
-      'yes' => 'game_process',
-      'n' => 'quit_game',
-      'no' => 'quit_game'
-      }
     end
 
     def instructions
-      @response.instructions.message
+      send_message(@response.instructions.message)
+      @response.message
     end
 
     def quit_game
       @trial_count = 0
       @colors = []
-      @response.exit_game.message
+      send_message(@response.exit_game.message)
+      @response.message
     end
 
     def won(start_time)

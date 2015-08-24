@@ -17,10 +17,10 @@ describe Mastermind::Game do
   before(:each) do
     mastermind_game.stub(:generate_colors){mastermind_game.generate_test_colors}
     mastermind_game.stub(:get_input){'RRGB'}
+    mastermind_game.stub(:send_message){}
   end
 
   it 'can analyze inputs passed to it' do
-
     mastermind_game.play
     guess_analysis = mastermind_game.analyze_guess('RBGB')
 
@@ -90,6 +90,8 @@ describe Mastermind::Game do
   end
 
   it 'can win game when guessed color is the color generated' do
+    mastermind_game.stub(:won){Time.now.to_i}
+
     mastermind_game.generate_test_colors
     analyzed = mastermind_game.analyze_guess('RRGB')
 
@@ -99,7 +101,7 @@ describe Mastermind::Game do
   it 'can try to guess colors' do
     color_array = %w{ R G B Y }
     color_guesses = []
-    3.times{
+    12.times{
       colors = ''
       4.times{ colors << color_array.sample }
       color_guesses << colors
@@ -121,7 +123,7 @@ describe Mastermind::Game do
     expect(mastermind_game.response.status).to eq :longer_input
   end
 
-  it 'sends a response if sequence is longer' do
+  it 'sends a response if sequence is shorter' do
     mastermind_game.stub(:get_input){"RY"}
 
     mastermind_game.too_short?(mastermind_game.get_input)

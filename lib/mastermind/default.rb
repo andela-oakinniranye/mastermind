@@ -5,7 +5,7 @@ module Mastermind
     end
 
     def get_input(message)
-      puts message
+      send_message message
       input = gets.chomp
       input
     end

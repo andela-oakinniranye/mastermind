@@ -1,24 +1,23 @@
 module Mastermind
   class Player
     include Default
-    attr_reader :response, :record
-    attr_accessor :name, :trials, :time_taken, :date_played
+    attr_reader :record, :name, :guesses, :time_taken, :date_played
+    # attr_accessor :name, :trials, :time_taken, :date_played
 
-    def initialize(response, player_data = nil)
-      @response = response
-      set_attr player_data if player_data
+    def initialize(response: nil, player: nil)
+      @response = response || Message.new
+      set_attr player if player
     end
 
     def set_attr(input)
       @name = input[:name] if input[:name]
-      @trials = input[:trials] if input[:trials]
+      @guesses = input[:guesses] if input[:guesses]
       @time_taken = input[:time_taken] if input[:time_taken]
       @date_played = input[:date_played] if input[:date_played]
     end
 
-    def winner_record
-      #implement record saving logic
-      @response.winner(@name, time).message
+    def winner_response
+      @response.winner(@name, @guesses, time).message
     end
 
     def time
@@ -27,6 +26,15 @@ module Mastermind
         secs = @time_taken%60
         "#{mins}m#{secs}s"
       end
+    end
+
+    def to_h
+      player = Hash.new(nil)
+      player[:name] = @name
+      player[:guesses] = @guesses
+      player[:time_taken] = @time_taken
+      player[:date_played] = @date_played
+      player
     end
   end
 end

@@ -5,8 +5,7 @@ describe Mastermind::Main do
   let(:mastermind_message){Mastermind::Message.new}
 
   before(:each) do
-    # mastermind_main.stub(:get_input){''}
-    mastermind_main.stub(:send_message){}
+    allow(mastermind_main).to receive(:send_message).and_return(nil)
   end
 
   it 'sets the response attribute' do
@@ -14,8 +13,7 @@ describe Mastermind::Main do
   end
 
   it 'can quit main' do
-    mastermind_main.stub(:get_input){'q'}
-    # mastermind_main.game.stub(:get_input){mastermind_main.game.colors}
+    allow(mastermind_main).to receive(:get_input).and_return('q')
     mastermind_main.start
 
     expect(mastermind_main.response.message).to eq(mastermind_message.exit_game.message)
@@ -23,7 +21,7 @@ describe Mastermind::Main do
 
   it 'can get the instructions' do
     skip
-    mastermind_main.stub(:get_input){['i', 'w'].sample}
+    allow(mastermind_main).to receive(:get_input).and_return('i')
     mastermind_main.start
   end
 

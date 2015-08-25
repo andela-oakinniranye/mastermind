@@ -10,5 +10,7 @@ require "mastermind"
 require "pry"
 Pry.start
 
+# game = Mastermind::Main.new
+# game.start
 # require "irb"
 # IRB.start

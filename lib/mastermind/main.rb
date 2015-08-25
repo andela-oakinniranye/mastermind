@@ -19,6 +19,10 @@ module Mastermind
       end
     end
 
+    def instructions
+      
+    end
+
     def supported_actions
       {
         'p' => 'play',
@@ -29,6 +33,5 @@ module Mastermind
         'instructions' => 'instructions'
       }
     end
-
   end
 end

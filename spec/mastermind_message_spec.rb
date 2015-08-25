@@ -11,7 +11,7 @@ describe Mastermind::Message do
   end
 
   it 'has message for a new game' do
-    message = "Welcome to MASTERMIND!\nWould you like to (p)lay, read the (i)nstructions, or (q)uit?"
+    message = "Welcome to MASTERMIND!\nWould you like to #{'(p)lay'.colorize(:green)}, read the #{'(i)nstructions'.colorize(:blue)}, or #{'(q)uit'.colorize(:red)}?"
     mastermind_message.start
 
     expect(mastermind_message.message).to eq message
@@ -20,12 +20,12 @@ describe Mastermind::Message do
   it 'has message for the number of trials' do
     mastermind_message.trial_count(5)
 
-    expect(mastermind_message.message).to eq "You have tried 5 time(s).\nTry again: "
+    expect(mastermind_message.message).to eq "You have tried 5 times. You have 7 attempts left.\nTry again: "
   end
 
   it 'can get instruction message' do
     mastermind_message.instructions
 
-    expect(mastermind_message.message).to eq "I have generated a beginner sequence with four elements made up of:\n(r)ed, (g)reen, (b)lue, and (y)ellow. Use (q)uit at any time to end the game.\nWhat's your guess? "
+    expect(mastermind_message.message).to eq "I have generated a beginner sequence with four elements made up of:\n#{'(r)ed'.colorize(:red)}, #{'(g)reen'.colorize(:green)}, #{'(b)lue'.colorize(:blue)}, and #{'(y)ellow'.colorize(:yellow)}. Use #{'(q)uit'.colorize(:red)} at any time to end the game.\nWhat's your guess? "
   end
 end

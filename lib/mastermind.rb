@@ -1,5 +1,8 @@
 require "mastermind/version"
 require "fileutils"
+require "colorize"
+require "active_support/core_ext/string/inflections"
+require "yaml"
 
 module Mastermind
   # Your code goes here...

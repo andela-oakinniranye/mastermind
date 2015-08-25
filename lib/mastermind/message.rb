@@ -4,7 +4,6 @@ module Mastermind
     attr_reader :message, :status
 
     def initialize(input = nil)
-      #  if input
       if input
         set_attr input
       else
@@ -23,60 +22,89 @@ module Mastermind
     end
 
     def won(tries, time={})
-      set_attr(message: "Congratulations!\nYou won the game in #{tries} tr[y|ies] and #{time[:mins]}m#{time[:secs]}s.\nDo you want to (p)lay again or (q)uit?", status: :won)
+      set_attr(message: "#{'Congratulations!'.colorize(:green)}\nYou won the game in #{(tries.to_s + ' try'.pluralize(tries)).colorize(:blue)} and #{(time[:mins].to_s + 'm' + time[:secs].to_s + 's').colorize(:blue)}.\nDo you want to (p)lay again or (q)uit or (t)op_players?", status: :won)
     end
 
     def instructions
-      set_attr(message: "I have generated a beginner sequence with four elements made up of:\n(r)ed, (g)reen, (b)lue, and (y)ellow. Use (q)uit at any time to end the game.\nWhat's your guess? ", status: :unknown)
+      set_attr(message: "I have generated a beginner sequence with four elements made up of:\n#{'(r)ed'.colorize(:red)}, #{'(g)reen'.colorize(:green)}, #{'(b)lue'.colorize(:blue)}, and #{'(y)ellow'.colorize(:yellow)}. Use #{'(q)uit'.colorize(:red)} at any time to end the game.\nWhat's your guess? ", status: :unknown)
     end
 
     def shorter_input
-      set_attr(message: "Your input is too short.", status: :shorter_input)
+      set_attr(message: "Your input is too short.".colorize(:red), status: :shorter_input)
     end
 
     def longer_input
-      set_attr(message: "Your input is too long.", status: :longer_input)
+      set_attr(message: "Your input is too long.".colorize(:red), status: :longer_input)
     end
 
     def start
-      set_attr(message: "Welcome to MASTERMIND!\nWould you like to (p)lay, read the (i)nstructions, or (q)uit?", status: :started)
+      set_attr(message: "Welcome to MASTERMIND!\nWould you like to #{'(p)lay'.colorize(:green)}, read the #{'(i)nstructions'.colorize(:blue)}, or #{'(q)uit'.colorize(:red)}?", status: :unknown)
     end
 
     def exit_game
-      set_attr(message: "Thank you for playing Mastermind!\nGoodbye!", status: :quitted)
+      set_attr(message: "Thank you for playing Mastermind!\nGoodbye!".colorize(:red), status: :quitted)
     end
 
     def unsupported_game_action(message: nil, status: nil)
       set_attr(
-        message: message || "You entered an unsupported action, try again! ",
+        message: message || "You entered an unsupported action, try again! ".colorize(:red),
         status: status || @status
         )
     end
 
     def wrong_guess
-      set_attr(message: "Your guess was wrong! Guess again: ", status: :wrong)
+      set_attr(message: "Your guess was wrong! Guess again: ".colorize(:red), status: :wrong)
     end
 
     def analyzed_guess(matched_position, included)
-      set_attr(message: "You had #{matched_position} position(s) exactly matched and #{included} close match(es)", status: :running)
+      set_attr(message: "You had #{(matched_position.to_s + ' position'.pluralize(matched_position)).colorize(:green)} exactly matched and #{(included.to_s + ' near match'.pluralize(included)).colorize(:blue)}", status: :running)
     end
 
-    def trial_count(trial_count)
+    def trial_count(trial_count, colors = nil)
+      remaining_trials = Game::ALLOWED_TRIALS - trial_count
       if trial_count == 0
         instructions
       elsif(trial_count < Game::ALLOWED_TRIALS)
-        set_attr(message: "You have tried #{trial_count} time(s).\nTry again: ", status: :running)
+        set_attr(message: "You have tried #{trial_count.to_s + ' time'.pluralize(trial_count)}. You have #{remaining_trials.to_s + ' attempt'.pluralize(remaining_trials)} left.\nTry again: ", status: :running)
       else
-        set_attr(message: "You tried, but lost.\nWant to try again? (p)lay to start again or (q)uit to exit ", status: :running)
+        set_attr(message: "You tried, but lost.\nThe color generated was #{colors}.\nWant to try again? (p)lay to start again or (q)uit to exit or (t)op_players to view the top ten players. ".colorize(:red), status: :running)
       end
     end
 
     def player
-      set_attr(message: "So you would like to play!\nStart by telling us your name: ", status: :player)
+      set_attr(message: "So you would like to play!\nStart by telling me your name: ".colorize(:green), status: :player)
     end
 
-    def winner(winner, time_taken)
-      set_attr(message: "#{winner} completed mastermind in #{time_taken}", status: :unknown)
+    def main_message
+      message = <<-EOS
+      #{%q{Just a little background on MASTERMIND}.colorize(:red)}
+      Mastermind is a board game with an interesting history (or rather a legend?).
+      Some game books report that it was invented in 1971 by Mordecai Meirowitz,
+      an Israeli postmaster and telecommunications expert. After many rejections
+      by leading toy companies, the rights were obtained by a small British firm,
+      Invicta Plastics Ltd. The firm originally manufactured the game itself,
+      though it has since licensed its manufacture to Hasbro in most of the world.
+      However, Mastermind is just a clever readaptation of an old similar game called
+      'Bulls and cows' in English, and 'Numerello' in Italian... Actually, the old
+      British game 'Bulls and cows' was somewhat different from the commercial
+      version. It was played on paper, not on a board... Over 50 million copies
+      later, Mastermind is still marketed today!\nThe idea of the game is for one
+      player (the code-breaker) to guess the secret code chosen by the other player
+      (the code-maker). The code is a sequence of 4 colored pegs chosen from six
+      colors available. The code-breaker makes a serie of pattern guesses - after
+      each guess the code-maker gives feedback in the form of 2 numbers, the number
+      of pegs that are of the right color and in the correct position, and the number
+      of pegs that are of the correct color but not in the correct position - these
+      numbers are usually represented by small black and white pegs.\nIn 1977,
+      the mathematician Donald Knuth demonstrated that the code-breaker can solve
+      the pattern in five moves or less, using an algorithm that progressively
+      reduced the number of possible patterns.
+EOS
+      set_attr(message: message, status: :main)
+    end
+
+    def winner(winner, trials, time_taken)
+      set_attr(message: "#{winner} completed mastermind in #{trials} guesses and #{time_taken}", status: :unknown)
     end
   end
 end

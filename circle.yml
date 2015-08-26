@@ -3,5 +3,4 @@ machine:
     version: 2.2.2
 dependencies:
   pre:
-    - gem uninstall bundler
     - gem install bundler -v '~> 1.10'

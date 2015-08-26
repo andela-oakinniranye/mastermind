@@ -1,14 +1,5 @@
 require 'spec_helper'
 
-module Mastermind
-  class Game
-    def generate_test_colors
-      @character_count = 4
-      @colors = ['R', 'R', 'G', 'B']
-    end
-  end
-end
-
 describe Mastermind::Game do
   let(:mastermind_message){Mastermind::Message.new}
   let(:mastermind_game){Mastermind::Game.new(mastermind_message)}
@@ -47,7 +38,7 @@ describe Mastermind::Game do
   it 'does not have any color set until play is called' do
     mastermind_game = Mastermind::Game.new(mastermind_message)
     expect(mastermind_game.colors).to eq nil
-    
+
     allow(mastermind_game).to receive(:game_process).and_return(nil)
     allow(mastermind_game).to receive(:get_input).and_return('RRGB')
 
@@ -99,6 +90,9 @@ describe Mastermind::Game do
   end
 
   it 'has method:won to set when game is won' do
+    allow(mastermind_game.top_ten_record).to receive(:add_record).and_return(nil)
+
+    mastermind_game.get_player
     mastermind_game.won(Time.now.to_i)
 
     expect(mastermind_game.response.status).to eq :won
@@ -147,4 +141,5 @@ describe Mastermind::Game do
     expect(mastermind_game.response.message).to eq("Your input is too short.".colorize(:red))
     expect(mastermind_game.response.status).to eq :shorter_input
   end
+  
 end

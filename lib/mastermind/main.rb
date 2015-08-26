@@ -11,16 +11,27 @@ module Mastermind
       action = get_input(@response.start.message)
       if supported_actions.keys.include? action
         @game = Game.new(@response)
-        @game.method(supported_actions[action]).call
-        start if supported_actions[action] =~ /instructions/
+        method(supported_actions[action]).call
       else
         send_message @response.unsupported_game_action.message
-        start
       end
+        start if supported_actions[action] =~ /instructions|background/ || @response.status == :unsupported_action
     end
 
     def instructions
-      
+      send_message(@response.gameplay_instructions.message)
+    end
+
+    def background
+      send_message(@response.main_message.message)
+    end
+
+    def play
+      @game.play
+    end
+
+    def quit_game
+      @game.quit_game
     end
 
     def supported_actions
@@ -30,7 +41,9 @@ module Mastermind
         'q' => 'quit_game',
         'quit' => 'quit_game',
         'i' => 'instructions',
-        'instructions' => 'instructions'
+        'instructions' => 'instructions',
+        'b' => 'background',
+        'background' => 'background'
       }
     end
   end

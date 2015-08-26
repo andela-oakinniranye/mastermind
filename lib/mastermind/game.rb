@@ -3,7 +3,12 @@ module Mastermind
     include Default
     attr_reader :colors, :trial_count, :response, :character_count, :player, :top_ten_record
     ALLOWED_TRIALS = 12
-    @@color_array = %w{ R G B Y }
+    @@all_colors_hash = { 'R' => '(r)ed',
+                          'G' => '(g)reen',
+                          'B' => '(b)lue',
+                          'Y' => '(y)ellow'
+                        }
+    @@color_array = @@all_colors_hash.keys # %w{ R G B Y }
 
     def initialize(response, character_count = 4, top_ten_record: TopTen.new)
       @response = response
@@ -22,10 +27,11 @@ module Mastermind
         if value == @colors[index]
           current_sprint[:match_position] += 1
         elsif @colors.include? value
+          # near matches should be a counter that
+          # counts the unique elements in the colors array
           current_sprint[:almost_match] += 1
         end
       }
-
       current_sprint
     end
 
@@ -65,7 +71,7 @@ module Mastermind
 
     def game_process
       until @trial_count > ALLOWED_TRIALS || @response.status == :won
-        input = get_input(@response.trial_count(@trial_count, @colors.join).message)
+        input = get_game_input
         if actions.keys.include? input
           method(actions[input]).call
           break unless actions[input] =~ /instructions/
@@ -81,8 +87,13 @@ module Mastermind
       play_again_or_quit
     end
 
+    def get_game_input
+      input = get_input(@response.trial_count(@trial_count, @colors.join).message)
+      input
+    end
+
     def play_again_or_quit
-      if @response.status == :won
+      if @response.status == :won || @trial_count >= ALLOWED_TRIALS
         input = get_input(@response.message)
         method(actions[input]).call if actions.keys.include? input
       end
@@ -105,7 +116,7 @@ module Mastermind
         'cheat' => 'cheat'
       }
 
-      supported_actions = {'p' => 'play', 'play' => 'play', 'q' => 'quit_game', 'quit' => 'quit_game', 'top_players' => 'top_players', 't' => 'top_players'}
+      supported_actions = {'p' => 'play', 'play' => 'play', 'top_players' => 'top_players', 't' => 'top_players'}
       action_s = action_s.merge(supported_actions) if @trial_count >= ALLOWED_TRIALS || @response.status == :won
 
       action_s
@@ -150,6 +161,8 @@ module Mastermind
       @top_ten_record.fetch_all.each{ |player|
         send_message(player.winner_response)
       }
+
+      game_process
     end
   end
 end

@@ -11,7 +11,7 @@ describe Mastermind::Message do
   end
 
   it 'has message for a new game' do
-    message = "Welcome to MASTERMIND!\nWould you like to #{'(p)lay'.colorize(:green)}, read the #{'(i)nstructions'.colorize(:blue)}, or #{'(q)uit'.colorize(:red)}?"
+    message = "Welcome to MASTERMIND!\nWould you like to #{'(p)lay'.colorize(:green)}, read the #{'(i)nstructions'.colorize(:blue)}, read a little #{'(b)ackground'.colorize(:yellow)} on Mastermind or #{'(q)uit'.colorize(:red)}?"
     mastermind_message.start
 
     expect(mastermind_message.message).to eq message

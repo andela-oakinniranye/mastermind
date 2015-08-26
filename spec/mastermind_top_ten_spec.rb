@@ -1,17 +1,13 @@
 require 'spec_helper'
-module Mastermind
-  class TopTen
-    FILE_NAME = 'topten_test.yaml'
-  end
-end
+
 describe Mastermind::TopTen do
   let(:mastermind_top_ten){Mastermind::TopTen.new}
 
   before(:each) do
     date = Date.today
-    mastermind_record_attrs = {name: 'TestUser', guesses: (1..30).to_a.sample, time_taken: (20..500).to_a.sample, date_played: date}
-    12.times{ mastermind_top_ten.add_record(mastermind_record_attrs) }
-
+    12.times{
+      mastermind_top_ten.add_record name: 'TestUser', guesses: (1..30).to_a.sample, time_taken: (20..500).to_a.sample, date_played: date
+    }
   end
 
   after(:each) do
@@ -40,7 +36,7 @@ describe Mastermind::TopTen do
   end
 
   it 'should always be arranged' do
-    expect(mastermind_top_ten.top_ten_records.first[:guesses]).to be >= mastermind_top_ten.top_ten_records.last[:guesses]
+    expect(mastermind_top_ten.top_ten_records.first[:guesses]).to be <= mastermind_top_ten.top_ten_records.last[:guesses]
   end
 
 end

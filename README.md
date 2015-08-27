@@ -1,6 +1,6 @@
 # Mastermind
 
-Mastermind hash an interesting history.
+Mastermind has an interesting history.
 But your single task is to guess the colors the computer has in memory in the shortest possible time.
 
 OR

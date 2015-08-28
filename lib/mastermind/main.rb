@@ -1,6 +1,6 @@
 module Mastermind
   class Main
-    include Default
+    include Helper
     attr_reader :game, :response
 
     def initialize
@@ -10,7 +10,7 @@ module Mastermind
     def start
       action = get_input(@response.start.message)
       if supported_actions.keys.include? action
-        @game = Game.new(@response)
+        @game ||= Game.new(@response)
         method(supported_actions[action]).call
       else
         send_message @response.unsupported_game_action.message
@@ -18,6 +18,7 @@ module Mastermind
         start if supported_actions[action] =~ /instructions|background/ || @response.status == :unsupported_action
     end
 
+  private
     def instructions
       send_message(@response.gameplay_instructions.message)
     end

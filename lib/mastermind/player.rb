@@ -1,6 +1,6 @@
 module Mastermind
   class Player
-    include Default
+    include Helper
     attr_reader :record, :name, :guesses, :time_taken, :date_played
     # attr_accessor :name, :trials, :time_taken, :date_played
 

@@ -14,6 +14,7 @@ describe Mastermind::Main do
 
   it 'can quit main' do
     allow(mastermind_main).to receive(:get_input).and_return('q')
+
     mastermind_main.start
 
     expect(mastermind_main.response.message).to eq(mastermind_message.exit_game.message)

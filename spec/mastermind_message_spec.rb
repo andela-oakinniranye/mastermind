@@ -2,6 +2,7 @@ require 'spec_helper'
 
 describe Mastermind::Message do
   let(:mastermind_message){Mastermind::Message.new}
+  let(:colors){['(r)ed', '(g)reen', '(b)lue', '(y)ellow']}
 
   it 'correctly sets attributes' do
     mastermind_message.set_attr(message: 'You win!', status: :won)
@@ -18,14 +19,14 @@ describe Mastermind::Message do
   end
 
   it 'has message for the number of trials' do
-    mastermind_message.trial_count(5)
+    mastermind_message.trial_count(5, colors)
 
     expect(mastermind_message.message).to eq "You have tried 5 times. You have 7 attempts left.\nTry again: "
   end
 
   it 'can get instruction message' do
-    mastermind_message.instructions
+    mastermind_message.instructions(colors)
 
-    expect(mastermind_message.message).to eq "I have generated a beginner sequence with four elements made up of:\n#{'(r)ed'.colorize(:red)}, #{'(g)reen'.colorize(:green)}, #{'(b)lue'.colorize(:blue)}, and #{'(y)ellow'.colorize(:yellow)}. Use #{'(q)uit'.colorize(:red)} at any time to end the game.\nWhat's your guess? "
+    expect(mastermind_message.message).to include "I have generated a beginner sequence with"
   end
 end

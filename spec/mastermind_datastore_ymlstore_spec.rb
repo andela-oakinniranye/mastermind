@@ -1,12 +1,12 @@
 require 'spec_helper'
 
-describe Mastermind::Datastore do
+describe Mastermind::Datastore::YmlStore do
 
-  let(:mastermind_datastore){Mastermind::Datastore.instance}
-  let(:file){'data_store'}
+  let(:mastermind_datastore){Mastermind::Datastore::YmlStore.instance}
+  let(:file){'data_store.yml'}
 
   after(:each) do
-    File.delete(file)
+    File.delete(file) if File.exists? file
   end
 
   it 'should be able to create if not exist' do
@@ -21,7 +21,7 @@ describe Mastermind::Datastore do
     12.times{
       record <<  {name: 'TestUser', guesses: (1..30).to_a.sample, time_taken: (20..500).to_a.sample, date_played: date }
     }
-    mastermind_datastore.save_yml record, file
+    mastermind_datastore.save_yml file, record
 
     file_content = File.open(file, 'r')
     expect(file_content.read).to include 'TestUser'
@@ -33,7 +33,7 @@ describe Mastermind::Datastore do
     12.times{
       record <<  {name: 'TestUser', guesses: (1..30).to_a.sample, time_taken: (20..500).to_a.sample, date_played: date }
     }
-    mastermind_datastore.save_yml record, file
+    mastermind_datastore.save_yml file, record
 
     data = mastermind_datastore.fetch_yml file
 

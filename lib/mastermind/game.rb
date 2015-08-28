@@ -1,6 +1,6 @@
 module Mastermind
   class Game
-    include Default
+    include Helper
     attr_reader :colors, :trial_count, :response, :character_count, :player, :top_ten_record
     ALLOWED_TRIALS = 12
     @@all_colors_hash = { 'R' => '(r)ed',
@@ -16,8 +16,41 @@ module Mastermind
       @top_ten_record = top_ten_record
     end
 
+    def play
+      generate_colors
+      @trial_count = 0
+      get_player if @player.nil?
+      @response.start.message
+      @time_started = Time.now.to_i
+
+      game_process
+    end
+
     def generate_colors
       @colors = @@color_array.sample(@character_count)
+      shuffle_colors_hash
+    end
+
+    def shuffle_colors_hash
+      @color_values_from_all_colors_array = @colors.map{|color| @@all_colors_hash[color] }
+      @color_values_from_all_colors_array.shuffle!
+    end
+
+    def game_process
+      until @response.status == :won || @response.status == :lost || @trial_count >= ALLOWED_TRIALS
+        input = get_game_input
+        if actions.keys.include? input
+          method(actions[input]).call
+          break unless actions[input] =~ /instructions/
+        else
+          next if the_input_is_too_long_or_too_short?(input)
+          @trial_count += 1
+          analyzed = analyze_guess(input)
+          break if check_correct?(analyzed)
+          send_message(@response.analyzed_guess(analyzed[:match_position], analyzed[:almost_match]).message)
+        end
+      end
+      what_do_you_want_to_do_next
     end
 
     def analyze_guess(current_guess)
@@ -45,16 +78,6 @@ module Mastermind
       end
     end
 
-    def play
-      get_player if @player.nil?
-      generate_colors
-      @response.start.message
-      @trial_count = 0
-      @time_started = Time.now.to_i
-
-      game_process
-    end
-
     def too_short?(input)
       if input.length < @character_count
         send_message(@response.shorter_input.message)
@@ -69,31 +92,27 @@ module Mastermind
       end
     end
 
-    def game_process
-      until @trial_count > ALLOWED_TRIALS || @response.status == :won
-        input = get_game_input
-        if actions.keys.include? input
-          method(actions[input]).call
-          break unless actions[input] =~ /instructions/
-        else
-          next if too_short?(input)
-          next if too_long?(input)
-          @trial_count += 1
-          analyzed = analyze_guess(input)
-          break if check_correct?(analyzed)
-          send_message(@response.analyzed_guess(analyzed[:match_position], analyzed[:almost_match]).message)
-        end
-      end
-      play_again_or_quit
+    def the_input_is_too_long_or_too_short?(input)
+      true if too_long?(input) || too_short?(input)
+    end
+
+    def what_do_you_want_to_do_next
+      loser_play_again_or_quit if @response.status == :lost || @trial_count >= ALLOWED_TRIALS
+      winner_play_again_or_quit if @response.status == :won
     end
 
     def get_game_input
-      input = get_input(@response.trial_count(@trial_count, @colors.join).message)
+      input = get_input(@response.trial_count(@trial_count, @colors.join, @color_values_from_all_colors_array).message)
       input
     end
 
-    def play_again_or_quit
-      if @response.status == :won || @trial_count >= ALLOWED_TRIALS
+    def loser_play_again_or_quit
+      input = get_game_input
+      method(actions[input]).call if actions.keys.include? input
+    end
+
+    def winner_play_again_or_quit
+      if @response.status == :won
         input = get_input(@response.message)
         method(actions[input]).call if actions.keys.include? input
       end
@@ -123,7 +142,7 @@ module Mastermind
     end
 
     def instructions
-      send_message(@response.instructions.message)
+      send_message(@response.instructions(@color_values_from_all_colors_array).message)
       @response.message
     end
 
@@ -145,6 +164,10 @@ module Mastermind
       @response.won(@trial_count, time)
     end
 
+    def lost
+
+    end
+
     def save_if_top_ten
       game_attr = {time_taken: @time_taken, guesses: @trial_count, date_played: Date.today}
       @player.set_attr game_attr
@@ -164,5 +187,8 @@ module Mastermind
 
       game_process
     end
+
+    private
+
   end
 end

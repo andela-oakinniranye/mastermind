@@ -1,5 +1,5 @@
 module Mastermind
-  module Default
+  module Helper
     def send_message(message)
       puts message
     end

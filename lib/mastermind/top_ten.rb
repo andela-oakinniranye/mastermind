@@ -4,20 +4,17 @@ module Mastermind
     FILE_NAME = 'topten.yaml'
     MAXIMUM_TOP = 10
 
-    def initialize(response: nil, file_name: FILE_NAME)
+    def initialize(response: nil, file_name: FILE_NAME, storage: Datastore::YmlStore.instance)
       @response = response || Message.new
       @file_name = file_name
+      @datastore = storage
 
-      create_file_if_not_exist file_name
+      @datastore.create_file_if_not_exist @file_name
       load_top_ten
     end
 
-    def create_file_if_not_exist(file_name)
-      File.open(file_name, 'w') unless File.exists? file_name
-    end
-
     def load_top_ten
-      @top_ten_records = ::YAML::load_file(@file_name) || []
+      @top_ten_records = @datastore.fetch_yml(@file_name) || []
       arrange_top_ten
       fetch_all
     end
@@ -61,9 +58,7 @@ module Mastermind
     end
 
     def save
-      File.open(@file_name, 'w') do |yml_data|
-        YAML.dump @top_ten_records, yml_data
-      end
+      @datastore.save_top_ten @file_name, @top_ten_records
       load_top_ten
     end
 

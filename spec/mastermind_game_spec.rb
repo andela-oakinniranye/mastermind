@@ -11,7 +11,7 @@ describe Mastermind::Game do
   end
 
   it 'can analyze inputs passed to it' do
-    mastermind_game.play
+    mastermind_game.generate_colors
     guess_analysis = mastermind_game.analyze_guess('RBGB')
 
     expect(guess_analysis).to be_a Hash
@@ -37,6 +37,8 @@ describe Mastermind::Game do
 
   it 'does not have any color set until play is called' do
     mastermind_game = Mastermind::Game.new(mastermind_message)
+    allow(mastermind_game).to receive(:send_message).and_return(nil)
+
     expect(mastermind_game.colors).to eq nil
 
     allow(mastermind_game).to receive(:game_process).and_return(nil)
@@ -60,7 +62,7 @@ describe Mastermind::Game do
   end
 
   it 'can get gameplay instruction message' do
-    expect(mastermind_game.instructions).to eq "I have generated a beginner sequence with four elements made up of:\n#{'(r)ed'.colorize(:red)}, #{'(g)reen'.colorize(:green)}, #{'(b)lue'.colorize(:blue)}, and #{'(y)ellow'.colorize(:yellow)}. Use #{'(q)uit'.colorize(:red)} at any time to end the game.\nWhat's your guess? "
+    expect(mastermind_game.instructions).to include "I have generated a beginner sequence with"
   end
 
   it 'can start a new game' do
@@ -78,7 +80,9 @@ describe Mastermind::Game do
   end
 
   it 'changes the colors at every call to play' do
-    skip
+    mastermind_game = Mastermind::Game.new(mastermind_message)
+    allow(mastermind_game).to receive(:get_input).and_return('RRGB')
+    allow(mastermind_game).to receive(:send_message).and_return(nil)
     allow(mastermind_game).to receive(:game_process).and_return(nil)
 
     mastermind_game.play
@@ -121,7 +125,7 @@ describe Mastermind::Game do
     mastermind_game.play
 
     expect(mastermind_game.response.status).to be :cheated
-    expect(mastermind_game.response.message).to include "Hmm! You just cheated. The colors generated was: #{mastermind_game.colors.join}."
+    expect(mastermind_game.response.message).to include "Hmm! You just cheated. The colors generated were: #{mastermind_game.colors.join}."
   end
 
   it 'sends a response if sequence is longer' do
@@ -141,5 +145,5 @@ describe Mastermind::Game do
     expect(mastermind_game.response.message).to eq("Your input is too short.".colorize(:red))
     expect(mastermind_game.response.status).to eq :shorter_input
   end
-  
+
 end

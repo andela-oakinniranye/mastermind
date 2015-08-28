@@ -62,6 +62,6 @@ describe Mastermind::Player do
 
     mastermindplayerhash = mastermind_player.to_h
     expect(mastermindplayerhash).to be_a Hash
-    expect(mastermindplayerhash).to eq mastermind_player_attrs
+    expect(mastermindplayerhash).to include mastermind_player_attrs
   end
 end

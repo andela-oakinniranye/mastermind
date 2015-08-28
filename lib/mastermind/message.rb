@@ -18,16 +18,22 @@ module Mastermind
     end
 
     def cheat(color)
-      set_attr(message: "Hmm! You just cheated. The colors generated was: #{color}.", status: :cheated)
+      set_attr(message: "Hmm! You just cheated. The colors generated were: #{color}.", status: :cheated)
     end
 
     def won(tries, time={})
       set_attr(message: "#{'Congratulations!'.colorize(:green)}\nYou won the game in #{(tries.to_s + ' try'.pluralize(tries)).colorize(:blue)} and #{(time[:mins].to_s + 'm' + time[:secs].to_s + 's').colorize(:blue)}.\nDo you want to (p)lay again or (q)uit or (t)op_players?", status: :won)
     end
 
-    def instructions
-      set_attr(message: "I have generated a beginner sequence with four elements made up of:\n#{'(r)ed'.colorize(:red)}, #{'(g)reen'.colorize(:green)}, #{'(b)lue'.colorize(:blue)}, and #{'(y)ellow'.colorize(:yellow)}. Use #{'(q)uit'.colorize(:red)} at any time to end the game.\nWhat's your guess? ", status: :instructions)
+    def instructions(colors = ['(r)ed', '(g)reen', '(b)lue', '(y)ellow'])
+      color_count = colors.length
+      colors_generated_to_word = turn_array_to_string_list(colors, color_count)
+      example_gameplay = sample_instructions_arrangement(colors)
+      set_attr(message: "I have generated a beginner sequence with #{color_count.humanize + ' element'.pluralize(color_count)} made up of:\n#{colors_generated_to_word}. You are to guess the sequence in which these colors appeared e.g #{example_gameplay.colorize(:white)} for #{colors_generated_to_word}. You have #{Game::ALLOWED_TRIALS} guesses to get these colors or you lose the game. Use #{'(q)uit'.colorize(:red)} at any time to end the game.\nReady to play? \nWhat's your guess? ", status: :instructions)
     end
+    # def instructions
+    #   set_attr(message: "I have generated a beginner sequence with four elements made up of:\n#{'(r)ed'.colorize(:red)}, #{'(g)reen'.colorize(:green)}, #{'(b)lue'.colorize(:blue)}, and #{'(y)ellow'.colorize(:yellow)}. Use #{'(q)uit'.colorize(:red)} at any time to end the game.\nWhat's your guess? ", status: :instructions)
+    # end
 
     def shorter_input
       set_attr(message: "Your input is too short.".colorize(:red), status: :shorter_input)
@@ -60,14 +66,14 @@ module Mastermind
       set_attr(message: "You had #{(matched_position.to_s + ' position'.pluralize(matched_position)).colorize(:green)} exactly matched and #{(included.to_s + ' near match'.pluralize(included)).colorize(:blue)}", status: :running)
     end
 
-    def trial_count(trial_count, colors = nil)
+    def trial_count(trial_count, correct_sequence, colors = nil)
       remaining_trials = Game::ALLOWED_TRIALS - trial_count
       if trial_count == 0
-        instructions
+        instructions(colors)
       elsif(trial_count < Game::ALLOWED_TRIALS)
         set_attr(message: "You have tried #{trial_count.to_s + ' time'.pluralize(trial_count)}. You have #{remaining_trials.to_s + ' attempt'.pluralize(remaining_trials)} left.\nTry again: ", status: :wrong_guess)
       else
-        set_attr(message: "You tried, but lost.\nThe color generated was #{colors}.\nWant to try again? (p)lay to start again or (q)uit to exit or (t)op_players to view the top ten players. ".colorize(:red), status: :lost)
+        set_attr(message: "You tried, but lost.\nThe colors generated were #{correct_sequence}.\nWant to try again? (p)lay to start again or (q)uit to exit or (t)op_players to view the top ten players. ".colorize(:red), status: :lost)
       end
     end
 
@@ -91,5 +97,21 @@ EOS
     def winner(winner, trials, time_taken)
       set_attr(message: "#{winner} completed mastermind in #{trials} #{'guess'.pluralize(trials)} and #{time_taken}", status: :top_players)
     end
+
+    private
+      def turn_array_to_string_list colors, array_count
+        if array_count >= 2
+          string_list = ''
+          string_list << colors[0..-2].map{|c| c.colorize(c.scan(/([[:alpha:]]+)/).join.to_sym)}.join(', ')
+          string_list << " and #{colors[-1].colorize(colors[-1].scan(/([[:alpha:]]+)/).join.to_sym)}"
+          string_list
+        else
+          colors.join
+        end
+      end
+
+      def sample_instructions_arrangement colors
+        colors.map{|c| c[1]}.join.upcase
+      end
   end
 end

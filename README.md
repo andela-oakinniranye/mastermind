@@ -14,7 +14,7 @@ Join me in making the next storm of command-line game!!!!
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'mastermind'
+gem 'master_mind', require: 'mastermind'
 ```
 
 And then execute:
@@ -23,11 +23,15 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install mastermind
+    $ gem install master_mind
+    
 
 ## Usage
 
-TODO: Write usage instructions here
+To play the game, open your terminal and run
+```ruby
+mastermind
+```
 
 ## Development
 
